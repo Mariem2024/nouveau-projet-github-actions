@@ -1,13 +1,27 @@
+
 name: Premier Workflow
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
   hello:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Hello
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Dire bonjour
         run: echo "Bonjour GitHub Actions!"
+      
+      - name: Afficher les infos
+        run: |
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Runner OS: ${{ runner.os }}"
