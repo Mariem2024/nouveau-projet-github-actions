@@ -9,6 +9,34 @@ on:
   workflow_dispatch:
 
 jobs:
+# JOB 1: TESTS (CI - Continuous Integration)
+  # ==========================================
+  test:
+    name: 🔬 Tests (CI)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🔍 Vérification du code
+        run: |
+          echo "🔍 Vérification que le code est présent..."
+          ls -la
+          echo ""
+          echo "📄 Contenu du README:"
+          cat README.md 2>/dev/null || echo "Pas de README"
+          echo ""
+          echo "✅ Vérification terminée!"
+
+      - name: ✅ Simuler des tests
+        run: |
+          echo "🧪 Exécution des tests..."
+          echo "Test 1: Vérification des fichiers "
+          echo "Test 2: Vérification de la syntaxe ✅"
+          echo "Test 3: Vérification des dépendances ✅"
+          echo ""
+          echo "🎉 Tous les tests ont réussi!"
   hello:
     runs-on: ubuntu-latest
     
