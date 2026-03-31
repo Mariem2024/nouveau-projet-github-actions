@@ -1,27 +1,42 @@
 
+
+
 name: Premier Workflow
 
 on:
   push:
     branches: [ master ]
+  pull_request:
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
+  # ==========================================
+  # JOB 1: TEST (CI - Continuous Integration)
+  # ==========================================
   test:
-    name: Tests CI
+    name: 🔬 1. Tests CI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Run tests
         run: |
-          echo "Running tests..."
-          echo "Test 1: OK"
-          echo "Test 2: OK"
-          echo "All tests passed!"
+          echo "==================================="
+          echo "🧪 EXECUTION DES TESTS"
+          echo "==================================="
+          echo "Test 1: Verification du code ✅"
+          echo "Test 2: Verification de la syntaxe ✅"
+          echo "Test 3: Verification des dependances ✅"
+          echo "==================================="
+          echo "🎉 Tous les tests ont reussi!"
+          echo "==================================="
 
+  # ==========================================
+  # JOB 2: BUILD (Construction)
+  # ==========================================
   build:
-    name: Build
+    name: 🏗️ 2. Build
     runs-on: ubuntu-latest
     needs: test
     steps:
@@ -29,19 +44,48 @@ jobs:
         uses: actions/checkout@v4
       - name: Build app
         run: |
+          echo "==================================="
+          echo "🏗️ CONSTRUCTION DE L'APPLICATION"
+          echo "==================================="
+          
+          # Creer le dossier de l'application
           mkdir -p app
-          echo "<h1>My App</h1>" > app/index.html
+          
+          # Creer le fichier HTML
+          echo "<!DOCTYPE html>" > app/index.html
+          echo "<html>" >> app/index.html
+          echo "<head>" >> app/index.html
+          echo "    <title>Mon Application</title>" >> app/index.html
+          echo "</head>" >> app/index.html
+          echo "<body>" >> app/index.html
+          echo "    <h1>Bienvenue sur mon application!</h1>" >> app/index.html
+          echo "    <p>Construite par GitHub Actions</p>" >> app/index.html
+          echo "    <p>Deployee automatiquement!</p>" >> app/index.html
+          echo "</body>" >> app/index.html
+          echo "</html>" >> app/index.html
+          
+          # Creer le fichier de version
           echo "Version: ${{ github.sha }}" > app/version.txt
           echo "Build date: $(date)" >> app/version.txt
-          echo "Build complete!"
+          echo "Build par: ${{ github.actor }}" >> app/version.txt
+          echo "Branch: ${{ github.ref }}" >> app/version.txt
+          
+          echo ""
+          echo "✅ Build termine avec succes!"
+          echo "📁 Fichiers crees:"
+          ls -la app/
+          echo "==================================="
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: my-app
+          name: mon-application
           path: app/
 
+  # ==========================================
+  # JOB 3: MESSAGE (optionnel)
+  # ==========================================
   hello:
-    name: Hello Message
+    name: 👋 3. Message
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -50,12 +94,83 @@ jobs:
       - name: Download build
         uses: actions/download-artifact@v4
         with:
-          name: my-app
+          name: mon-application
           path: downloaded/
-      - name: Show build
+      - name: Show version
         run: |
-          echo "Build content:"
-          ls -la downloaded/
+          echo ""
+          echo "📄 Version de l'application:"
           cat downloaded/version.txt
 
+  # ==========================================
+  # JOB 4: DEPLOY (CD - Continuous Deployment)
+  # ==========================================
+  deploy:
+    name: 🚀 4. Deploy (CD)
+    runs-on: ubuntu-latest
+    needs: build
+    # ⚠️ IMPORTANT: Ne se déploie que sur la branche master
+    if: github.ref == 'refs/heads/master'
+    
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mon-application
+          path: deploy/
+      
+      - name: Afficher les fichiers à deployer
+        run: |
+          echo "==================================="
+          echo "🚀 PREPARATION DU DEPLOIEMENT"
+          echo "==================================="
+          echo "📁 Fichiers a deployer:"
+          ls -la deploy/
+          echo ""
+          echo "📄 Contenu de index.html:"
+          cat deploy/index.html
+          echo ""
+          echo "📄 Version:"
+          cat deploy/version.txt
+          echo "==================================="
+      
+      - name: Simuler le deploiement
+        run: |
+          echo ""
+          echo "🌐 DEPLOIEMENT EN COURS..."
+          echo "   → Envoi des fichiers vers le serveur"
+          sleep 2
+          echo "   → Configuration du serveur web"
+          sleep 1
+          echo "   → Verification du deploiement"
+          echo ""
+          echo "✅ DEPLOIEMENT REUSSI!"
+          echo ""
+          echo "📍 Application disponible a l'adresse:"
+          echo "   https://mon-app-exemple.com"
+          echo "==================================="
+      
+      - name: Creer un log de deploiement
+        run: |
+          mkdir -p logs
+          echo "===================================" > logs/deploy.log
+          echo "LOG DE DEPLOIEMENT" >> logs/deploy.log
+          echo "===================================" >> logs/deploy.log
+          echo "Date: $(date)" >> logs/deploy.log
+          echo "Version: ${{ github.sha }}" >> logs/deploy.log
+          echo "Deploye par: ${{ github.actor }}" >> logs/deploy.log
+          echo "Branch: ${{ github.ref }}" >> logs/deploy.log
+          echo "Status: SUCCES" >> logs/deploy.log
+          echo "===================================" >> logs/deploy.log
+          
+          echo ""
+          echo "📝 Log de deploiement cree:"
+          cat logs/deploy.log
+      
+      - name: Upload deployment log
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-deploiement
+          path: logs/
+          retention-days: 30
 
