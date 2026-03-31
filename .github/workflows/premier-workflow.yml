@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Run tests
         run: |
           echo "Running tests..."
@@ -26,7 +26,7 @@ jobs:
     needs: test
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Build app
         run: |
           mkdir -p app
@@ -35,7 +35,7 @@ jobs:
           echo "Build date: $(date)" >> app/version.txt
           echo "Build complete!"
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: my-app
           path: app/
@@ -48,7 +48,7 @@ jobs:
       - name: Say Hello
         run: echo "Bonjour GitHub Actions!"
       - name: Download build
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: my-app
           path: downloaded/
