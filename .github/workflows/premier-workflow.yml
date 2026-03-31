@@ -9,36 +9,89 @@ on:
   workflow_dispatch:
 
 jobs:
-# JOB 1: TESTS (CI - Continuous Integration)
+  # ==========================================
+  # JOB 1: TESTS (CI - Continuous Integration)
   # ==========================================
   test:
     name: 🔬 Tests (CI)
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v3
-
+      
       - name: 🔍 Vérification du code
         run: |
-          echo "🔍 Vérification que le code est présent..."
+          echo "🔍 Vérification du code..."
           ls -la
-          echo ""
-          echo "📄 Contenu du README:"
-          cat README.md 2>/dev/null || echo "Pas de README"
-          echo ""
           echo "✅ Vérification terminée!"
-
+      
       - name: ✅ Simuler des tests
         run: |
           echo "🧪 Exécution des tests..."
-          echo "Test 1: Vérification des fichiers "
+          echo "Test 1: Vérification des fichiers ✅"
           echo "Test 2: Vérification de la syntaxe ✅"
-          echo "Test 3: Vérification des dépendances ✅"
           echo ""
           echo "🎉 Tous les tests ont réussi!"
-  hello:
+
+  # ==========================================
+  # JOB 2: BUILD (Construction)
+  # ==========================================
+  build:
+    name: 🏗️ Build (Construction)
     runs-on: ubuntu-latest
+    needs: test  # Attend que les tests passent
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+      
+      - name: 🏗️ Créer l'application
+        run: |
+          echo "🏗️ Construction de l'application..."
+          
+          # Créer un dossier pour l'application
+          mkdir -p app
+          
+          # Créer un fichier index.html
+          cat > app/index.html << 'HTML'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mon Application</title>
+</head>
+<body>
+    <h1>Bienvenue sur mon application!</h1>
+    <p>Construite par GitHub Actions</p>
+    <p>Version: ${{ github.sha }}</p>
+</body>
+</html>
+HTML
+          
+          # Créer un fichier info
+          echo "Version: ${{ github.sha }}" > app/version.txt
+          echo "Build date: $(date)" >> app/version.txt
+          echo "Build par: ${{ github.actor }}" >> app/version.txt
+          
+          echo "✅ Build terminé!"
+          echo ""
+          echo "📁 Contenu du build:"
+          ls -la app/
+      
+      - name: 📤 Sauvegarder le build (Artifact)
+        uses: actions/upload-artifact@v3
+        with:
+          name: mon-application
+          path: app/
+          retention-days: 7
+
+  # ==========================================
+  # JOB 3: HELLO (message)
+  # ==========================================
+  hello:
+    name: 👋 Message
+    runs-on: ubuntu-latest
+    needs: build  # Attend que le build réussisse
     
     steps:
       - name: Checkout code
@@ -53,3 +106,18 @@ jobs:
           echo "Branch: ${{ github.ref }}"
           echo "Actor: ${{ github.actor }}"
           echo "Runner OS: ${{ runner.os }}"
+      
+      - name: 📥 Télécharger le build
+        uses: actions/download-artifact@v3
+        with:
+          name: mon-application
+          path: build-telecharge/
+      
+      - name: 📋 Vérifier le build
+        run: |
+          echo "📁 Build téléchargé:"
+          ls -la build-telecharge/
+          echo ""
+          echo "📄 Contenu de version.txt:"
+          cat build-telecharge/version.txt
+
